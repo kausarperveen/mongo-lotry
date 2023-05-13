@@ -53,14 +53,17 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use((req, res, next) => {
   if (req.method === 'POST') {
-    // Handle the POST request
-    // Retrieve data from req.body and perform necessary operations
+    // Retrieve data from req.body
+    const postData = req.body;
 
-    console.log('POST request intercepted');
+    // Perform necessary operations with postData
+
+    console.log('POST request intercepted with data:', postData);
   }
 
   next();
 });
+
 
 /**
  * Connect to MongoDB.
