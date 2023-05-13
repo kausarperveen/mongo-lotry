@@ -47,16 +47,16 @@ const app = express();
 * Set up middleware.
 */
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  if (req.method === 'POST') {
-      // Retrieve data from req.body
-      const postData = req.body;
+app.post('*', (req, res) => {
+  // Retrieve data from req.body
+  const postData = req.body;
 
-      // Perform necessary operations with postData
-      console.log('POST request intercepted with data:', postData);
-  }
+  // Perform necessary operations with postData
+  console.log('POST request intercepted with data:', postData);
 
-  next();
+  // Add your logic to handle the POST request here
+  // For example, you can send a response back to the client
+  res.send('POST request received');
 });
 app.use('/users', userRoutes);
 app.use('/', indexRoutes);
