@@ -51,6 +51,16 @@ app.use('/users', userRoutes);
 app.use('/', indexRoutes);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use((req, res, next) => {
+  if (req.method === 'POST') {
+    // Handle the POST request
+    // Retrieve data from req.body and perform necessary operations
+
+    console.log('POST request intercepted');
+  }
+
+  next();
+});
 
 /**
  * Connect to MongoDB.
