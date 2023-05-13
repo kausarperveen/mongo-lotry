@@ -14,6 +14,7 @@ const userRoutes = require('./routes/users');
 const indexRoutes = require('./routes/index');
 const debug = require('debug')('lottery:server');
 const http = require('http');
+const path = require('path');
 
 /**
  * Get port from environment and store in Express.
@@ -49,6 +50,7 @@ app.use(bodyParser.json());
 app.use('/users', userRoutes);
 app.use('/', indexRoutes);
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 /**
  * Connect to MongoDB.
