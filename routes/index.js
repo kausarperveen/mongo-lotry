@@ -15,7 +15,19 @@ const { authenticateToken } = require('../middlewares/checkRegisterd')
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
-
+/**
+ * @api {post} /signup Register a new user
+ * @apiName SignupUser
+ * @apiGroup Users
+ *
+ * @apiParam {String} name User's name
+ * @apiParam {String} email User's email address
+ * @apiParam {String} password User's password
+ *
+ * @apiSuccess {Number} statusCode Response status code
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Object} data Registered user data
+ */
 router.post('/signup', async (req, res) => {
   try {
     await signupValidators(req.body);
@@ -26,7 +38,18 @@ router.post('/signup', async (req, res) => {
     res.status(error.code).json({ error: error.error });
   }
 });
-
+/**
+ * @api {post} /login User login
+ * @apiName UserLogin
+ * @apiGroup Users
+ *
+ * @apiParam {String} email User's email address
+ * @apiParam {String} password User's password
+ *
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {String} token Authentication token
+ * @apiSuccess {String} email User's email address
+ */
 // Login route
 router.post('/login', async (req, res) => {
   try {
@@ -43,7 +66,15 @@ router.post('/login', async (req, res) => {
     res.status(error.code || 500).json({ error: error.error || "Internal Server Error" });
   }
 });
-
+/**
+ * @api {post} /forgot_password Request password reset
+ * @apiName RequestPasswordReset
+ * @apiGroup Users
+ *
+ * @apiParam {String} email User's email address
+ *
+ * @apiSuccess {String} message Success message
+ */
 router.post('/forgot_password', authenticateToken,async (req, res) => {
   try {
     const { email } = req.body;
@@ -69,7 +100,17 @@ router.post('/forgot_password', authenticateToken,async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+/**
+ * @api {post} /reset-password Reset password
+ * @apiName ResetPassword
+ * @apiGroup Users
+ *
+ * @apiParam {String} token Password reset token
+ * @apiParam {String} password New password
+ * @apiParam {String} confirmPassword Confirm new password
+ *
+ * @apiSuccess {String} message Success message
+ */
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, password, confirmPassword } = req.body;
@@ -87,7 +128,14 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-
+/**
+ * @api {post} /start_lottery Start a lottery
+ * @apiName StartLottery
+ * @apiGroup Lottery
+ *
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Array} lotteries List of started lotteries
+ */
 
 // Route to start a lottery by the admin
 router.post('/start_lottery', authenticateToken, isAdmin, async (req, res) => {
@@ -118,7 +166,14 @@ router.post('/start_lottery', authenticateToken, isAdmin, async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong while starting the lottery' });
   }
 });
-
+/**
+ * @api {post} /close_lottery Close the latest lottery
+ * @apiName CloseLottery
+ * @apiGroup Lottery
+ *
+ * @apiSuccess {String} message Success message
+ * @apiSuccess {Object} lottery Closed lottery details
+ */
 // Close lottery function
 router.post('/close_lottery', authenticateToken, isAdmin, async (req, res) => {
   try {

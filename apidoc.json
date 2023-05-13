@@ -1,0 +1,30 @@
+{
+    "name": "Your Project Name",
+    "version": "1.0.0",
+    "description": "Your Project Description",
+    "title": "Your API Documentation Title",
+    "url": "https://mongolotry.herokuapp.com",  
+    "sampleUrl": "https://mongolotry.herokuapp.com", 
+    "header": {
+      "title": "Header",
+      "filename": "header.md"
+    },
+    "footer": {
+      "title": "Footer",
+      "filename": "footer.md"
+    },
+    "template": {
+      "withCompare": true,
+      "withGenerator": true
+    },
+    "exclude": [
+      "node_modules/",
+      "path/to/exclude"
+    ],
+    "apidoc": {
+      "title": "API Documentation",
+      "url": "https://apidocjs.com"
+    }
+  }
+  
+  

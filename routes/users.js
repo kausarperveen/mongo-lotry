@@ -9,7 +9,16 @@ const MAX_LOTTERY_NUMBERS = 500;
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
-
+/**
+ * @api {post} /buy_lottery Buy lottery tickets
+ * @apiName BuyLotteryTickets
+ * @apiGroup Lottery
+ *
+ * @apiParam {String} wallet_address Wallet address
+ * @apiParam {Number} lottery_number Number of lottery tickets to purchase
+ *
+ * @apiSuccess {String} message Success message
+ */
 
 router.post('/buy_lottery', authenticateToken, async (req, res) => {
   try {
@@ -62,6 +71,13 @@ router.post('/buy_lottery', authenticateToken, async (req, res) => {
     return res.status(500).send('Internal server error');
   }
 });
+/**
+ * @api {get} /generate-random-winners Generate random lottery winners
+ * @apiName GenerateRandomWinners
+ * @apiGroup Lottery
+ *
+ * @apiSuccess {Array} winning_users List of winning users and their lottery numbers
+ */
 router.get('/generate-random-winners', authenticateToken, async (req, res) => {
   try {
     const numWinners = 5; // Number of random lottery numbers to generate is set to 5
@@ -79,7 +95,13 @@ router.get('/generate-random-winners', authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-    
+    /**
+ * @api {get} /draw Perform a lottery draw
+ * @apiName PerformLotteryDraw
+ * @apiGroup Lottery
+ *
+ * @apiSuccess {Array} draw List of drawn lottery users and their lottery numbers
+ */
 
 router.get('/draw', async (req, res) => {
       try {
