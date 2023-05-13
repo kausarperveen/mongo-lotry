@@ -11,10 +11,6 @@ var {generatePasswordResetToken,sendPasswordResetEmail}=require('../helper/admin
 
 const { isAdmin } = require('../middlewares/isAdmin');
 const { authenticateToken } = require('../middlewares/checkRegisterd')
-/* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
-});
 
 router.post('/signup', async (req, res) => {
   try {
