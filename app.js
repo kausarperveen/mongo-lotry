@@ -51,15 +51,12 @@ app.use('/users', userRoutes);
 app.use('/', indexRoutes);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use((req, res, next) => {
-  if (req.method === 'POST') {
-    // Retrieve data from req.body
-    const postData = req.body;
+app.post('*', (req, res, next) => {
+  // Retrieve data from req.body
+  const postData = req.body;
 
-    // Perform necessary operations with postData
-
-    console.log('POST request intercepted with data:', postData);
-  }
+  // Perform necessary operations with postData
+  console.log('POST request intercepted with data:', postData);
 
   next();
 });
