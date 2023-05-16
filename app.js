@@ -48,16 +48,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Middleware to handle all POST requests
-app.post('*', (req, res, next) => {
-  const requestData = req.body; // Access the data from the POST request
+app.use((req, res, next) => {
+  if (req.method === 'POST') {
+    const requestData = req.body; // Access the data from the POST request
 
-  // Process the data and perform necessary actions
-  // ...
+    // Process the data and perform necessary actions
+    // ...
 
-  // Call the next middleware function in the chain
-  next();
+    // Return a response
+    return res.send('POST request processed successfully');
+  }
+
+  next(); // Pass the request to the next middleware/route handler
 });
-
 app.use('/users', userRoutes);
 app.use('/', indexRoutes);
 app.set('view engine', 'ejs');
