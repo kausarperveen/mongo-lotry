@@ -44,23 +44,8 @@ function normalizePort(val) {
 const app = express();
 
 
-// Middleware to handle all POST requests
-app.use((req, res, next) => {
-  if (req.method === 'POST') {
-    // Retrieve data from req.body
-    const postData = req.body;
+//Middleware to handle all POST requests
 
-    // Perform necessary operations with postData
-    console.log('POST request intercepted with data:', postData);
-    // You can add your custom logic to handle the POST request here
-
-    // Respond with a success message or pass control to the next middleware
-    res.status(200).json({ message: 'POST request handled successfully' });
-  } else {
-    // Pass control to the next middleware if it's not a POST request
-    next();
-  }
-});
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
