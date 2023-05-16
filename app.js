@@ -43,6 +43,9 @@ function normalizePort(val) {
 */
 const app = express();
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 // Middleware to handle all POST requests
 app.use((req, res, next) => {
   if (req.method === 'POST') {
@@ -56,9 +59,6 @@ app.use((req, res, next) => {
     next(); // Pass the request to the next middleware/route handler
   }
 });
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
 app.use('/users', userRoutes);
 app.use('/', indexRoutes);
