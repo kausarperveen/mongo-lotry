@@ -47,18 +47,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Middleware to handle all POST requests
-app.use((req, res, next) => {
-  if (req.method === 'POST') {
-    // Handle the POST request here
-    console.log('Received a POST request');
-    // Perform necessary actions
-
-    // Return a response
-    res.send('POST request processed successfully');
-  } else {
-    next(); // Pass the request to the next middleware/route handler
-  }
-});
 
 app.use('/users', userRoutes);
 app.use('/', indexRoutes);

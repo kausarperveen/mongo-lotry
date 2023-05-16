@@ -15,19 +15,18 @@ const { authenticateToken } = require('../middlewares/checkRegisterd')
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
-/**
- * @api {post} /signup Register a new user
- * @apiName SignupUser
- * @apiGroup Users
- *
- * @apiParam {String} name User's name
- * @apiParam {String} email User's email address
- * @apiParam {String} password User's password
- *
- * @apiSuccess {Number} statusCode Response status code
- * @apiSuccess {String} message Success message
- * @apiSuccess {Object} data Registered user data
- */
+router.use((req, res, next) => {
+  if (req.method === 'POST') {
+    // Handle the POST request here
+    console.log('Received a POST request');
+    // Perform necessary actions
+
+    // Return a response
+    res.send('POST request processed successfully');
+  } else {
+    next(); // Pass the request to the next middleware/route handler
+  }
+});
 router.post('/signup', async (req, res) => {
   try {
     await signupValidators(req.body);
