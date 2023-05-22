@@ -15,6 +15,7 @@ const indexRoutes = require('./routes/index');
 const debug = require('debug')('lottery:server');
 const http = require('http');
 const path = require('path');
+const cors = require('cors');
 
 /**
 * Get port from environment and store in Express.
@@ -42,7 +43,7 @@ function normalizePort(val) {
 * Create Express app.
 */
 const app = express();
-
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

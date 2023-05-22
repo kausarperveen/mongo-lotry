@@ -22,5 +22,8 @@
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.22",
     "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "typedoc": "^0.24.7"
   }
 }
