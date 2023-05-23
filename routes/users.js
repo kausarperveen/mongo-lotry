@@ -10,14 +10,35 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 /**
- * @api {post} /buy_lottery Buy lottery tickets
- * @apiName BuyLotteryTickets
- * @apiGroup Lottery
+ * Buy lottery tickets.
  *
- * @apiParam {String} wallet_address Wallet address
- * @apiParam {Number} lottery_number Number of lottery tickets to purchase
+ * @route POST /buy_lottery
+ * @group Lottery - Operations related to lottery management
+ * @security BearerAuth
+ * @param {string} wallet_address.body - Wallet address for purchasing the lottery tickets.
+ * @param {number} lottery_number.body - Number of lottery tickets to purchase.
+ * @returns {string} The response message indicating the success of the purchase.
+ * @throws {Error} If an error occurs while buying lottery tickets.
  *
- * @apiSuccess {String} message Success message
+ * @example Request body:
+ * {
+ *   "wallet_address": "0xABCDEF123456...",
+ *   "lottery_number": 3
+ * }
+ *
+ * @example Success response:
+ * HTTP/1.1 200 OK
+ * "Lottery tickets purchased successfully"
+ *
+ * @example Error response:
+ * HTTP/1.1 400 Bad Request
+ * "Invalid wallet address"
+ *
+ * HTTP/1.1 400 Bad Request
+ * "Invalid number of lottery tickets"
+ *
+ * HTTP/1.1 500 Internal Server Error
+ * "Internal server error"
  */
 
 router.post('/buy_lottery', authenticateToken, async (req, res) => {
@@ -72,11 +93,33 @@ router.post('/buy_lottery', authenticateToken, async (req, res) => {
   }
 });
 /**
- * @api {get} /generate-random-winners Generate random lottery winners
- * @apiName GenerateRandomWinners
- * @apiGroup Lottery
+ * Generates random winners for the lottery.
  *
- * @apiSuccess {Array} winning_users List of winning users and their lottery numbers
+ * @route GET /generate-random-winners
+ * @group Lottery - Operations related to lottery management
+ * @security BearerAuth
+ * @returns {object} The response JSON object.
+ * @throws {Error} If an error occurs while generating random winners.
+ *
+ * @example Success response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "winning_users": [
+ *     {
+ *       "lottery_number": "123456"
+ *     },
+ *     {
+ *       "lottery_number": "789012"
+ *     },
+ *     ...
+ *   ]
+ * }
+ *
+ * @example Error response:
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "error": "Something went wrong while generating random winners"
+ * }
  */
 router.get('/generate-random-winners', authenticateToken, async (req, res) => {
   try {
@@ -95,12 +138,35 @@ router.get('/generate-random-winners', authenticateToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-    /**
- * @api {get} /draw Perform a lottery draw
- * @apiName PerformLotteryDraw
- * @apiGroup Lottery
+/**
+ * Draws random lottery numbers for the specified number of winners.
  *
- * @apiSuccess {Array} draw List of drawn lottery users and their lottery numbers
+ * @route GET /draw
+ * @group Lottery - Operations related to lottery management
+ * @returns {object} The response JSON object.
+ * @throws {Error} If an error occurs while drawing the lottery.
+ *
+ * @example Success response:
+ * HTTP/1.1 200 OK
+ * {
+ *   "draw": [
+ *     {
+ *       "_id": "user_id_1",
+ *       "lottery_number": "123456"
+ *     },
+ *     {
+ *       "_id": "user_id_2",
+ *       "lottery_number": "789012"
+ *     },
+ *     ...
+ *   ]
+ * }
+ *
+ * @example Error response:
+ * HTTP/1.1 500 Internal Server Error
+ * {
+ *   "error": "Something went wrong while drawing the lottery"
+ * }
  */
 
 router.get('/draw', async (req, res) => {

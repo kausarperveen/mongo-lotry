@@ -16,7 +16,8 @@ const debug = require('debug')('lottery:server');
 const http = require('http');
 const path = require('path');
 const cors = require('cors');
-
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 /**
 * Get port from environment and store in Express.
 */
@@ -43,6 +44,23 @@ function normalizePort(val) {
 * Create Express app.
 */
 const app = express();
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: 'Shib Lottery',
+      description: 'It gives information about the lottery system',
+      version: '1.0.0',
+    },
+    explorer: true,
+  },
+  apis: ['./routes/index.js'], // Path to the API routes files
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerDocs));
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

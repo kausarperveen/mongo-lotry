@@ -15,18 +15,60 @@ const { authenticateToken } = require('../middlewares/checkRegisterd')
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
-router.use((req, res, next) => {
-  if (req.method === 'POST') {
-    // Handle the POST request here
-    console.log('Received a POST request');
-    // Perform necessary actions
-
-    // Return a response
-    res.send('POST request processed successfully');
-  } else {
-    next(); // Pass the request to the next middleware/route handler
-  }
-});
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Create a new user
+ *     description: Register a new user with the provided information
+ *     tags: [User]
+ *     parameters:
+ *       - in: formData
+ *         name: name
+ *         description: User's name
+ *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: email
+ *         description: User's email address
+ *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: password
+ *         description: User's password
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 statusCode:
+ *                   type: number
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *       default:
+ *         description: Error registering user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
 router.post('/signup', async (req, res) => {
   try {
     await signupValidators(req.body);
@@ -38,17 +80,49 @@ router.post('/signup', async (req, res) => {
   }
 });
 /**
- * @api {post} /login User login
- * @apiName UserLogin
- * @apiGroup Users
- *
- * @apiParam {String} email User's email address
- * @apiParam {String} password User's password
- *
- * @apiSuccess {String} message Success message
- * @apiSuccess {String} token Authentication token
- * @apiSuccess {String} email User's email address
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: User login
+ *     description: Log in with the provided email and password
+ *     tags: [User]
+ *     parameters:
+ *       - in: formData
+ *         name: email
+ *         description: User's email address
+ *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: password
+ *         description: User's password
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *       default:
+ *         description: Error logging in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  */
+
+
 // Login route
 router.post('/login', async (req, res) => {
   try {
@@ -66,14 +140,48 @@ router.post('/login', async (req, res) => {
   }
 });
 /**
- * @api {post} /forgot_password Request password reset
- * @apiName RequestPasswordReset
- * @apiGroup Users
- *
- * @apiParam {String} email User's email address
- *
- * @apiSuccess {String} message Success message
+ * @swagger
+ * /forgot_password:
+ *   post:
+ *     summary: Request password reset
+ *     description: Send a password reset email to the user's email address
+ *     tags: [User]
+ *     parameters:
+ *       - in: formData
+ *         name: email
+ *         description: User's email address
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Password reset email sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       default:
+ *         description: Error requesting password reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  */
+
 router.post('/forgot_password', authenticateToken,async (req, res) => {
   try {
     const { email } = req.body;
@@ -100,16 +208,50 @@ router.post('/forgot_password', authenticateToken,async (req, res) => {
   }
 });
 /**
- * @api {post} /reset-password Reset password
- * @apiName ResetPassword
- * @apiGroup Users
- *
- * @apiParam {String} token Password reset token
- * @apiParam {String} password New password
- * @apiParam {String} confirmPassword Confirm new password
- *
- * @apiSuccess {String} message Success message
+ * @swagger
+ * /reset-password:
+ *   post:
+ *     summary: Reset password
+ *     description: Reset user's password using the provided token and new password
+ *     tags: [User]
+ *     parameters:
+ *       - in: formData
+ *         name: token
+ *         description: Password reset token
+ *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: password
+ *         description: New password
+ *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: confirmPassword
+ *         description: Confirm new password
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       default:
+ *         description: Error resetting password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  */
+
+
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, password, confirmPassword } = req.body;
@@ -126,15 +268,60 @@ router.post('/reset-password', async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
 /**
- * @api {post} /start_lottery Start a lottery
- * @apiName StartLottery
- * @apiGroup Lottery
- *
- * @apiSuccess {String} message Success message
- * @apiSuccess {Array} lotteries List of started lotteries
+ * @swagger
+ * /start_lottery:
+ *   post:
+ *     summary: Start the lottery
+ *     description: Start the lottery for eligible users
+ *     tags: [Lottery]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *                 description: The start date for the lottery
+ *     responses:
+ *       200:
+ *         description: Lottery started successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 lotteries:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: The ID of the lottery
+ *                       purchase_date:
+ *                         type: string
+ *                         format: date-time
+ *                         description: The date and time when the lottery was purchased
+ *       default:
+ *         description: Error starting the lottery
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  */
+
+
 
 // Route to start a lottery by the admin
 router.post('/start_lottery', authenticateToken, isAdmin, async (req, res) => {
@@ -165,14 +352,7 @@ router.post('/start_lottery', authenticateToken, isAdmin, async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong while starting the lottery' });
   }
 });
-/**
- * @api {post} /close_lottery Close the latest lottery
- * @apiName CloseLottery
- * @apiGroup Lottery
- *
- * @apiSuccess {String} message Success message
- * @apiSuccess {Object} lottery Closed lottery details
- */
+
 // Close lottery function
 router.post('/close_lottery', authenticateToken, isAdmin, async (req, res) => {
   try {
