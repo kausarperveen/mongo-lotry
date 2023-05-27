@@ -53,7 +53,7 @@ const swaggerOptions = {
     },
     explorer: true,
   },
-  apis: ['./routes/index.js'], // Path to the API routes files
+  apis: ['./routes/index.js','./routes/users.js'], // Path to the API routes files
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);

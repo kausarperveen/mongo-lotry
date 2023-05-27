@@ -22,22 +22,25 @@ const lotterySchema = new mongoose.Schema({
   },
   wallet_address: {
     type: String,
-    required: true
-  },
-  checked_status: {
-    type: Boolean,
-    default: false
+    required: false
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
+  },
+  sold: {
+    type: Boolean,
+    default: false
   }
 }, {
   collection: 'lottery',
   timestamps: false
 });
+
 lotterySchema.index({ lottery_number: 1 }, { unique: true, partialFilterExpression: { lottery_number: { $exists: true } } });
+
 const Lottery = mongoose.model('Lottery', lotterySchema);
 
 module.exports = Lottery;
+

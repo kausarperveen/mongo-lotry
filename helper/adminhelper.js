@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
   async function sendPasswordResetEmail(email, token) {
     // Set your SendGrid API key
-    sgMail.setApiKey('YOUR_SENDGRID_API_KEY');
+   /* sgMail.setApiKey('YOUR_SENDGRID_API_KEY');
   
     // Define the email content
     const msg = {
@@ -26,7 +26,7 @@ const crypto = require('crypto');
     } catch (error) {
       console.error('Error sending email:', error);
       return false;
-    }
+    }*/
   }
   
 
