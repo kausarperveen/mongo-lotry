@@ -43,8 +43,8 @@ function normalizePort(val) {
 /**
 * Create Express app.
 */
-/*const app = express();
-const swaggerOptions = {
+const app = express();
+/*const swaggerOptions = {
   swaggerDefinition: {
     info: {
       title: 'Shib Lottery',
