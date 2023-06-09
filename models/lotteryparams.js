@@ -22,16 +22,24 @@ const lotteryParamsSchema = new mongoose.Schema({
       return new Date(value); // Parse UTC timestamp to Date object
     }
   },
-  prize: {
-    type: String,
-    required: true
-  },
-  randomCount: {
+  totalTickets: {
     type: Number,
     required: true
   },
   maxTicketsPerUser: {
     type: Number,
+    required: true
+  },
+  ticketPrice: {
+    type: Number,
+    required: true
+  },
+  numberOfWinners: {
+    type: Number,
+    required: true
+  },
+  prize: {
+    type: String,
     required: true
   }
 }, {

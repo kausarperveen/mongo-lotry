@@ -8,6 +8,7 @@ const PasswordResetToken = require('../models/PasswordResetToken'); // import th
 const LotteryParams=require('../models/lotteryparams')
 
 
+
 async function purchaseLotteryTickets(req, res) {
   try {
     const { wallet_address, lottery_number } = req.body;
@@ -27,29 +28,39 @@ async function purchaseLotteryTickets(req, res) {
       return res.status(400).send('Invalid wallet address');
     }
 
-    const maxLotteryNumber = await Lottery.findOne().sort({ lottery_number: -1 }).limit(1);
-    const nextLotteryNumber = (maxLotteryNumber?.lottery_number || 0) + 1;
-    const numLotteryNumbers = Math.min(lottery_number, 1000);
+    const lotteryParams = await LotteryParams.findOne();
+
+    if (!lotteryParams) {
+      return res.status(400).send('Lottery parameters not found');
+    }
+
+    const soldTickets = await Lottery.countDocuments({ user_id });
+
+    const numLotteryNumbers = Math.min(lottery_number, lotteryParams.maxTicketsPerUser);
 
     if (numLotteryNumbers <= 0) {
       return res.status(400).send('Invalid number of lottery tickets');
     }
 
-    if (numLotteryNumbers > 1000) {
-      return res.status(400).send('Exceeded maximum number of lottery tickets');
+    const userSoldTickets = await Lottery.countDocuments({
+      user_id,
+      sold: true
+    });
+
+    if (userSoldTickets + numLotteryNumbers > lotteryParams.maxTicketsPerUser) {
+      return res.status(400).send('Exceeded maximum number of tickets per user');
     }
 
-    const soldTickets = await Lottery.countDocuments({ user_id });
-    const unsoldTickets = 1000 - soldTickets - numLotteryNumbers;
+    const unsoldTickets = lotteryParams.totalTickets - soldTickets;
 
-    if (unsoldTickets < 0) {
+    if (unsoldTickets < numLotteryNumbers) {
       return res.status(400).send('Not enough unsold tickets available');
     }
 
     // Generate unique random lottery numbers within the desired range
     const lotteryNumbers = [];
     const unsoldTicketsData = [];
-    const unsoldRange = Array.from({ length: 1000 }, (_, i) => i + 1);
+    const unsoldRange = Array.from({ length: unsoldTickets }, (_, i) => i + 1);
 
     while (lotteryNumbers.length < numLotteryNumbers) {
       const randomIndex = Math.floor(Math.random() * unsoldRange.length);
@@ -60,6 +71,7 @@ async function purchaseLotteryTickets(req, res) {
         lottery_number: selectedNumber,
         purchase_date: new Date(),
         wallet_address,
+        sold: true
       });
     }
 
@@ -70,7 +82,7 @@ async function purchaseLotteryTickets(req, res) {
     await Lottery.deleteOne({ lottery_number: null });
 
     const soldCount = soldTickets + numLotteryNumbers;
-    const unsoldCount = unsoldTickets;
+    const unsoldCount = unsoldTickets - numLotteryNumbers;
 
     return res.status(200).json({
       message: 'Lottery tickets purchased successfully',
@@ -84,99 +96,123 @@ async function purchaseLotteryTickets(req, res) {
 }
 
 
-async function startLotteryDraw(req, res) {
-    try {
-      const { startDate, endDate, prize, randomCount, winnersCount, maxTicketsPerUser } = req.body;
-  
-      if (!startDate || !endDate || !prize || !randomCount || !winnersCount || !maxTicketsPerUser) {
-        return res.status(400).send('Invalid input parameters');
-      }
-  
-      const currentTime = new Date();
-      const startDateTime = new Date(startDate);
-      const endDateTime = new Date(endDate);
-  
-      if (currentTime < startDateTime) {
-        return res.status(400).send('Lottery has not started yet');
-      }
-  
-      if (currentTime > endDateTime) {
-        return res.status(400).send('Lottery has already ended');
-      }
-  
-      const soldTickets = await Lottery.countDocuments({});
-      const unsoldTickets = 1000 - soldTickets;
-  
-      if (unsoldTickets < randomCount) {
-        return res.status(400).send('Not enough unsold tickets available');
-      }
-  
-      const unsoldRange = Array.from({ length: 1000 }, (_, i) => i + 1);
-      const randomNumbers = [];
-  
-      while (randomNumbers.length < randomCount) {
-        const randomIndex = Math.floor(Math.random() * unsoldRange.length);
-        const selectedNumber = unsoldRange.splice(randomIndex, 1)[0];
-        randomNumbers.push(selectedNumber);
-      }
-  
-      const winners = [];
-      for (let i = 0; i < winnersCount; i++) {
-        const winningIndex = Math.floor(Math.random() * randomNumbers.length);
-        const winningNumber = randomNumbers[winningIndex];
-        winners.push(winningNumber);
-        randomNumbers.splice(winningIndex, 1);
-      }
-  
-      const lotteryParams = new LotteryParams({
-        startDate,
-        endDate,
-        prize,
-        randomCount,
-        maxTicketsPerUser
-      });
-  
-      await lotteryParams.save();
-  
-      return res.status(200).json({
-        winners,
-        lotteryParams
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).send('Internal server error');
-    }
-  }
-  /*router.get('/generate_random_numbers', authenticateToken, async (req, res) => {
+
+async function endLottery(req, res) {
   try {
-    const user_id = req.user && req.user._id;
+    const lotteryParams = await LotteryParams.findOne();
+    const endDate = lotteryParams.endDate;
 
-    if (!user_id) {
-      return res.status(401).send('Unauthorized');
+    if (!endDate) {
+      return res.status(400).send('Invalid input parameters');
     }
 
-    const soldTickets = await Lottery.countDocuments({ user_id });
-    const unsoldTickets = 1000 - soldTickets;
+    const currentTime = new Date();
+    const endDateTime = new Date(endDate);
 
-    if (unsoldTickets < 5) {
+    if (currentTime > endDateTime) {
+      return res.status(400).send('Lottery has already ended');
+    }
+
+    const totalTickets = lotteryParams.totalTickets;
+
+    const unsoldTickets = await Lottery.countDocuments({ sold: false });
+    const soldTickets = totalTickets - unsoldTickets;
+
+    // Update the sold and unsold counts in the lotteryParams document
+    lotteryParams.soldCount = soldTickets;
+    lotteryParams.unsoldCount = unsoldTickets;
+    await lotteryParams.save();
+
+    return res.status(200).send('Lottery ended successfully');
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Internal server error');
+  }
+}
+
+async function drawWinners(req, res) {
+  try {
+    const lotteryParams = await LotteryParams.findOne();
+    const numberOfWinners = lotteryParams.numberOfWinners;
+
+    if (!numberOfWinners) {
+      return res.status(400).send('Invalid input parameters');
+    }
+
+    const soldTickets = await Lottery.countDocuments({ sold: true });
+
+    const unsoldTickets = lotteryParams.totalTickets - soldTickets;
+
+    if (unsoldTickets < numberOfWinners) {
       return res.status(400).send('Not enough unsold tickets available');
     }
 
-    const unsoldRange = Array.from({ length: 1000 }, (_, i) => i + 1);
-    const randomNumbers = [];
+    const winners = [];
+    const unsoldRange = Array.from({ length: unsoldTickets }, (_, i) => i + 1);
 
-    while (randomNumbers.length < 5) {
+    while (winners.length < numberOfWinners) {
       const randomIndex = Math.floor(Math.random() * unsoldRange.length);
       const selectedNumber = unsoldRange.splice(randomIndex, 1)[0];
-      randomNumbers.push(selectedNumber);
+      winners.push(selectedNumber);
     }
 
     return res.status(200).json({
-      randomNumbers,
+      winners: winners,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).send('Internal server error');
   }
-});*/
-  module.exports={startLotteryDraw,purchaseLotteryTickets}
+}
+async function createLotteryParams(req, res) {
+  try {
+    const {
+      startDate,
+      endDate,
+      totalTickets,
+      maxTicketsPerUser,
+      ticketPrice,
+      numberOfWinners,
+      prize
+    } = req.body;
+
+    // Check if the lottery params already exist
+    let lotteryParams = await LotteryParams.findOne();
+
+    if (lotteryParams) {
+      // Update the existing lottery params
+      lotteryParams.startDate = startDate;
+      lotteryParams.endDate = endDate;
+      lotteryParams.totalTickets = totalTickets;
+      lotteryParams.maxTicketsPerUser = maxTicketsPerUser;
+      lotteryParams.ticketPrice = ticketPrice;
+      lotteryParams.numberOfWinners = numberOfWinners;
+      lotteryParams.prize = prize;
+      lotteryParams.unsold = Array.from({ length: totalTickets }, (_, index) => index + 1);
+    } else {
+      // Create a new lottery params object
+      lotteryParams = new LotteryParams({
+        startDate,
+        endDate,
+        totalTickets,
+        maxTicketsPerUser,
+        ticketPrice,
+        numberOfWinners,
+        prize,
+        unsold: Array.from({ length: totalTickets }, (_, index) => index + 1)
+      });
+    }
+
+    // Save or update the lottery params object
+    await lotteryParams.save();
+
+    return res.status(200).json({ message: 'Lottery created/updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'An error occurred while creating/updating the lottery' });
+  }
+}
+
+
+
+  module.exports={purchaseLotteryTickets,endLottery,createLotteryParams,drawWinners}
