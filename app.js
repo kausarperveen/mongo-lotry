@@ -43,7 +43,7 @@ function normalizePort(val) {
 /**
 * Create Express app.
 */
-const app = express();
+/*const app = express();
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
@@ -60,7 +60,7 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 app.use('/api-docs', swaggerUi.serve);
 app.get('/api-docs', swaggerUi.setup(swaggerDocs));
-
+ */
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
